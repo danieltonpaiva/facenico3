@@ -28,6 +28,72 @@ if platform.system().lower() == 'darwin':
 	ssl._create_default_https_context = ssl._create_unverified_context
 
 
+
+
+
+import ffmpeg
+
+def merge_video(target_path: str, fps: float) -> bool:
+    temp_output_video_path = get_temp_output_video_path(target_path)
+    temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
+
+    ffmpeg.input(temp_frames_pattern, r=fps, hwaccel='cuda').output(
+        temp_output_video_path,
+        vcodec=facefusion.globals.output_video_encoder,
+        crf=get_crf_value(facefusion.globals.output_video_quality),
+        pix_fmt='yuv420p',
+        colorspace='bt709',
+        y='-y'
+    ).run()
+
+    return True  # Replace with appropriate logic for success/failure
+
+def get_crf_value(quality):
+    if facefusion.globals.output_video_encoder in ['libx264', 'libx265']:
+        return round(51 - (quality * 0.51))
+    elif facefusion.globals.output_video_encoder in ['libvpx-vp9']:
+        return round(63 - (quality * 0.63))
+    elif facefusion.globals.output_video_encoder in ['h264_nvenc', 'hevc_nvenc']:
+        return round(51 - (quality * 0.51))
+    else:
+        return None  # Add handling for other cases as needed
+
+# Define get_temp_output_video_path and get_temp_frames_pattern functions
+# ...
+
+# Assuming the run_ffmpeg function is still needed, you can adapt it to
+# use subprocess or remove it, depending on your requirements.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def run_ffmpeg(args : List[str]) -> bool:
 	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
 	commands.extend(args)
@@ -114,21 +180,7 @@ def run_ffmpeg_with_progress(commands):
 		progress_bar.close()
 
 
-def merge_video(target_path : str, fps : float) -> bool:
-	temp_output_video_path = get_temp_output_video_path(target_path)
-	temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
-	commands = [ '-hwaccel', 'cuda', '-r', str(fps), '-i', temp_frames_pattern, '-c:v', facefusion.globals.output_video_encoder ]
-	if facefusion.globals.output_video_encoder in [ 'libx264', 'libx265' ]:
-		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
-		commands.extend([ '-crf', str(output_video_compression) ])
-	if facefusion.globals.output_video_encoder in [ 'libvpx-vp9' ]:
-		output_video_compression = round(63 - (facefusion.globals.output_video_quality * 0.63))
-		commands.extend([ '-crf', str(output_video_compression) ])
-	if facefusion.globals.output_video_encoder in [ 'h264_nvenc', 'hevc_nvenc' ]:
-		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
-		commands.extend([ '-cq', str(output_video_compression) ])
-	commands.extend([ '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-y', temp_output_video_path ])
-	return run_ffmpeg(commands)
+
 
 
 def restore_audio(target_path : str, output_path : str) -> bool:
