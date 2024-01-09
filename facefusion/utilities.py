@@ -42,9 +42,7 @@ def run_ffmpeg(args : List[str]) -> bool:
 		# Itera sobre as linhas de saída do processo
 		for line in process.stderr:
 			# Verifica se a linha contém informações de progresso do FFmpeg
-			if "frame=" in line and "fps=" in line:
-				# Atualiza a barra de progresso com base nas informações extraídas da linha
-				progress_bar.update(1)
+			progress_bar.update(1)
 
 		# Aguarda a conclusão do processo
 		process.communicate()
