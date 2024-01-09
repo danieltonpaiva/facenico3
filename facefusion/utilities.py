@@ -27,6 +27,7 @@ TEMP_OUTPUT_VIDEO_NAME = 'temp.mp4'
 if platform.system().lower() == 'darwin':
 	ssl._create_default_https_context = ssl._create_unverified_context
 
+from ffmpeg_progress_yield import FfmpegProgres
 
 def run_ffmpeg(args : List[str]) -> bool:
 	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
@@ -34,30 +35,13 @@ def run_ffmpeg(args : List[str]) -> bool:
 	
 	# Inicia a barra de progresso com um tamanho total desconhecido
 	progress_bar = tqdm(desc="FFmpeg Progress", unit="frame", dynamic_ncols=True)
+	ff = FfmpegProgress(commands)
+	with tqdm(total=100, position=1, desc="FFmpeg Progress") as pbar:
+	    for progress in ff.run_command_with_progress():
+	        pbar.update(progress - pbar.n)
 
-	try:
-		# Inicia o processo do FFmpeg
-		process = subprocess.Popen(commands, stderr=subprocess.PIPE, text=True)
-
-		# Itera sobre as linhas de saída do processo
-		for line in process.stderr:
-			# Verifica se a linha contém informações de progresso do FFmpeg
-			progress_bar.update(1)
-
-		# Aguarda a conclusão do processo
-		process.communicate()
-
-		# Verifica o código de saída do processo
-		if process.returncode == 0:
-			return True
-		else:
-			return False
-
-	finally:
-		# Certifica-se de que a barra de progresso seja fechada mesmo em caso de exceção
-		progress_bar.close()
-
-
+	# get the output
+	print(ff.stderr)
 
 def open_ffmpeg(args : List[str]) -> subprocess.Popen[bytes]:
 	commands = [ 'ffmpeg', '-hide_banner', '-loglevel', 'error' ]
