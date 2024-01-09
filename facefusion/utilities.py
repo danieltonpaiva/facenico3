@@ -27,15 +27,71 @@ TEMP_OUTPUT_VIDEO_NAME = 'temp.mp4'
 if platform.system().lower() == 'darwin':
 	ssl._create_default_https_context = ssl._create_unverified_context
 
-from better_ffmpeg_progress import FfmpegProcess
 
-def run_ffmpeg(args : List[str]) -> bool:
-	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
-	commands.extend(args)
-	
-	process = FfmpegProcess(commands)
-	# Use the run method to run the FFmpeg command.
-	process.run()
+
+
+
+
+import re
+import threading
+
+def run_ffmpeg(command, progress_callback=None):
+	# Inicia o processo ffmpeg
+	process = subprocess.Popen(
+		command,
+		stdout=subprocess.PIPE,
+		stderr=subprocess.STDOUT,
+		universal_newlines=True,
+		bufsize=1  # Buffer por linha para obter saída em tempo real
+	)
+
+	# Função para ler a saída em tempo real e chamar o callback de progresso
+	def read_output():
+		for line in iter(process.stdout.readline, ''):
+			if progress_callback:
+				progress = extract_progress(line)
+				if progress is not None:
+					progress_callback(progress)
+			print(line, end='')  # Exibe a saída do ffmpeg na console
+
+	# Inicia a thread para ler a saída em tempo real
+	output_thread = threading.Thread(target=read_output)
+	output_thread.start()
+
+	# Espera até que o processo ffmpeg seja concluído
+	process.wait()
+
+	# Espera até que a thread de saída termine
+	output_thread.join()
+
+	# Retorna o código de saída do processo
+	return process.returncode
+
+def extract_progress(line):
+	# Usa expressão regular para extrair o progresso de uma linha de saída do ffmpeg
+	match = re.search(r'time=(\d+:\d+:\d+.\d+)', line)
+	if match:
+		time_str = match.group(1)
+		return time_to_seconds(time_str)
+	return None
+
+def time_to_seconds(time_str):
+	# Converte o formato de tempo HH:MM:SS.SS para segundos
+	h, m, s = map(float, time_str.split(':'))
+	return h * 3600 + m * 60 + s
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def open_ffmpeg(args : List[str]) -> subprocess.Popen[bytes]:
 	commands = [ 'ffmpeg', '-hide_banner', '-loglevel', 'error' ]
@@ -81,7 +137,7 @@ def merge_video(target_path : str, fps : float) -> bool:
 		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
 		commands.extend([ '-cq', str(output_video_compression) ])
 	commands.extend([ '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-y', temp_output_video_path ])
-	return run_ffmpeg(commands)
+	run_ffmpeg(commands, progress_callback=lambda progress: print(f'Progresso: {progress} segundos'))
 
 
 def restore_audio(target_path : str, output_path : str) -> bool:
