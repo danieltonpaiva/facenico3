@@ -48,7 +48,7 @@ def extract_frames(target_path : str, fps : float) -> bool:
 	trim_frame_start = facefusion.globals.trim_frame_start
 	trim_frame_end = facefusion.globals.trim_frame_end
 	temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
-	commands = [ '-hwaccel', 'auto', '-i', target_path, '-q:v', str(temp_frame_compression), '-pix_fmt', 'rgb24' ]
+	commands = [ '-hwaccel', 'cuda', '-i', target_path, '-q:v', str(temp_frame_compression), '-pix_fmt', 'rgb24' ]
 	if trim_frame_start is not None and trim_frame_end is not None:
 		commands.extend([ '-vf', 'trim=start_frame=' + str(trim_frame_start) + ':end_frame=' + str(trim_frame_end) + ',fps=' + str(fps) ])
 	elif trim_frame_start is not None:
@@ -63,14 +63,14 @@ def extract_frames(target_path : str, fps : float) -> bool:
 
 def compress_image(output_path : str) -> bool:
 	output_image_compression = round(31 - (facefusion.globals.output_image_quality * 0.31))
-	commands = [ '-hwaccel', 'auto', '-i', output_path, '-q:v', str(output_image_compression), '-y', output_path ]
+	commands = [ '-hwaccel', 'cuda', '-i', output_path, '-q:v', str(output_image_compression), '-y', output_path ]
 	return run_ffmpeg(commands)
 
 
 def merge_video(target_path : str, fps : float) -> bool:
 	temp_output_video_path = get_temp_output_video_path(target_path)
 	temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
-	commands = [ '-hwaccel', 'auto', '-r', str(fps), '-i', temp_frames_pattern, '-c:v', facefusion.globals.output_video_encoder ]
+	commands = [ '-hwaccel', 'cuda', '-hwaccel_output_format', 'cuda', '-r', str(fps), '-i', temp_frames_pattern, '-c:v', facefusion.globals.output_video_encoder ]
 	if facefusion.globals.output_video_encoder in [ 'libx264', 'libx265' ]:
 		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
 		commands.extend([ '-crf', str(output_video_compression) ])
@@ -89,7 +89,7 @@ def restore_audio(target_path : str, output_path : str) -> bool:
 	trim_frame_start = facefusion.globals.trim_frame_start
 	trim_frame_end = facefusion.globals.trim_frame_end
 	temp_output_video_path = get_temp_output_video_path(target_path)
-	commands = [ '-hwaccel', 'auto', '-i', temp_output_video_path ]
+	commands = [ '-hwaccel', 'cuda', '-i', temp_output_video_path ]
 	if trim_frame_start is not None:
 		start_time = trim_frame_start / fps
 		commands.extend([ '-ss', str(start_time) ])
