@@ -27,7 +27,7 @@ TEMP_OUTPUT_VIDEO_NAME = 'temp.mp4'
 if platform.system().lower() == 'darwin':
 	ssl._create_default_https_context = ssl._create_unverified_context
 
-from ffmpeg_progress_yield import FfmpegProgres
+from ffmpeg_progress_yield import FfmpegProgress
 
 def run_ffmpeg(args : List[str]) -> bool:
 	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
