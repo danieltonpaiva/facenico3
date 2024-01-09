@@ -28,68 +28,34 @@ if platform.system().lower() == 'darwin':
 	ssl._create_default_https_context = ssl._create_unverified_context
 
 
+def run_ffmpeg(args : List[str]) -> bool:
+	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
+	commands.extend(args)
+	
+	# Inicia a barra de progresso com um tamanho total desconhecido
+	progress_bar = tqdm(desc="FFmpeg Progress", unit="frame", dynamic_ncols=True)
 
+	try:
+		# Inicia o processo do FFmpeg
+		process = subprocess.Popen(commands, stderr=subprocess.PIPE, text=True)
 
+		# Itera sobre as linhas de saída do processo
+		for line in process.stderr:
+			# Verifica se a linha contém informações de progresso do FFmpeg
+			progress_bar.update(1)
 
+		# Aguarda a conclusão do processo
+		process.communicate()
 
-import re
-import threading
+		# Verifica o código de saída do processo
+		if process.returncode == 0:
+			return True
+		else:
+			return False
 
-def run_ffmpeg(command, progress_callback=None):
-	# Inicia o processo ffmpeg
-	process = subprocess.Popen(
-		command,
-		stdout=subprocess.PIPE,
-		stderr=subprocess.STDOUT,
-		universal_newlines=True,
-		bufsize=1  # Buffer por linha para obter saída em tempo real
-	)
-
-	# Função para ler a saída em tempo real e chamar o callback de progresso
-	def read_output():
-		for line in iter(process.stdout.readline, ''):
-			if progress_callback:
-				progress = extract_progress(line)
-				if progress is not None:
-					progress_callback(progress)
-			print(line, end='')  # Exibe a saída do ffmpeg na console
-
-	# Inicia a thread para ler a saída em tempo real
-	output_thread = threading.Thread(target=read_output)
-	output_thread.start()
-
-	# Espera até que o processo ffmpeg seja concluído
-	process.wait()
-
-	# Espera até que a thread de saída termine
-	output_thread.join()
-
-	# Retorna o código de saída do processo
-	return process.returncode
-
-def extract_progress(line):
-	# Usa expressão regular para extrair o progresso de uma linha de saída do ffmpeg
-	match = re.search(r'time=(\d+:\d+:\d+.\d+)', line)
-	if match:
-		time_str = match.group(1)
-		return time_to_seconds(time_str)
-	return None
-
-def time_to_seconds(time_str):
-	# Converte o formato de tempo HH:MM:SS.SS para segundos
-	h, m, s = map(float, time_str.split(':'))
-	return h * 3600 + m * 60 + s
-
-
-
-
-
-
-
-
-
-
-
+	finally:
+		# Certifica-se de que a barra de progresso seja fechada mesmo em caso de exceção
+		progress_bar.close()
 
 
 
@@ -122,6 +88,31 @@ def compress_image(output_path : str) -> bool:
 	commands = [ '-hwaccel', 'cuda', '-i', output_path, '-q:v', str(output_image_compression), '-y', output_path ]
 	return run_ffmpeg(commands)
 
+def run_ffmpeg_with_progress(commands):
+	# Inicia a barra de progresso com um tamanho total desconhecido
+	progress_bar = tqdm(total=100, desc="Merging Video", unit="%", dynamic_ncols=True)
+
+	try:
+		# Inicia o processo do FFmpeg
+		process = subprocess.Popen(['ffmpeg'] + commands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
+		# Itera sobre as linhas de saída do processo
+		for line in process.stdout:
+			# Verifica se a linha contém informações de progresso do FFmpeg
+			if "frame=" in line and "fps=" in line:
+				# Extrai o número do frame atual
+				frame_number = int(line.split("frame=")[1].split("fps=")[0].strip())
+				
+				# Atualiza a barra de progresso com base no número do frame
+				progress_bar.update(frame_number - progress_bar.n)
+
+		# Aguarda a conclusão do processo
+		process.communicate()
+
+	finally:
+		# Certifica-se de que a barra de progresso seja fechada mesmo em caso de exceção
+		progress_bar.close()
+
 
 def merge_video(target_path : str, fps : float) -> bool:
 	temp_output_video_path = get_temp_output_video_path(target_path)
@@ -137,7 +128,7 @@ def merge_video(target_path : str, fps : float) -> bool:
 		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
 		commands.extend([ '-cq', str(output_video_compression) ])
 	commands.extend([ '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-y', temp_output_video_path ])
-	run_ffmpeg(commands, progress_callback=lambda progress: print(f'Progresso: {progress} segundos'))
+	return run_ffmpeg(commands)
 
 
 def restore_audio(target_path : str, output_path : str) -> bool:
