@@ -27,18 +27,15 @@ TEMP_OUTPUT_VIDEO_NAME = 'temp.mp4'
 if platform.system().lower() == 'darwin':
 	ssl._create_default_https_context = ssl._create_unverified_context
 
-from ffmpeg_progress_yield import FfmpegProgress
+from better_ffmpeg_progress import FfmpegProcess
 
 def run_ffmpeg(args : List[str]) -> bool:
 	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
 	commands.extend(args)
 	
-	# Inicia a barra de progresso com um tamanho total desconhecido
-	progress_bar = tqdm(desc="FFmpeg Progress", unit="frame", dynamic_ncols=True)
-	ff = FfmpegProgress(commands)
-	with tqdm(total=100, position=1, desc="FFmpeg Progress") as pbar:
-	    for progress in ff.run_command_with_progress():
-	        pbar.update(progress - pbar.n)
+	process = FfmpegProcess(commands)
+	# Use the run method to run the FFmpeg command.
+	process.run()
 
 def open_ffmpeg(args : List[str]) -> subprocess.Popen[bytes]:
 	commands = [ 'ffmpeg', '-hide_banner', '-loglevel', 'error' ]
