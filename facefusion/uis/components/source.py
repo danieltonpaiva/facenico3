@@ -1,5 +1,6 @@
 from typing import Any, IO, Optional
 import gradio
+import os
 
 import facefusion.globals
 from facefusion import wording
@@ -32,7 +33,8 @@ def render() -> None:
 		show_label = False
 	)
 	register_ui_component('source_image', SOURCE_IMAGE)
-	examples = gradio.Examples(['/kaggle/working/facenico3/image.jpg'], SOURCE_FILE)
+	arquivos = [f for f in os.listdir(caminho_pasta) if os.path.isfile(os.path.join(caminho_pasta, f))]
+	examples = gradio.Examples(arquivos, SOURCE_FILE)
 
 
 def listen() -> None:
