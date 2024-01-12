@@ -34,8 +34,11 @@ def render() -> None:
 	)
 	register_ui_component('source_image', SOURCE_IMAGE)
 	arquivos = [f for f in os.listdir('/kaggle/working/facenico3/exemplos') if os.path.isfile(os.path.join('/kaggle/working/facenico3/exemplos', f))]
+	files = []
 	for x in arquivos:
-		examples = gradio.Examples('/kaggle/working/facenico3/exemplos/' + x, SOURCE_FILE)
+		files.append('/kaggle/working/facenico3/exemplos/' + x)
+
+	examples = gradio.Examples(files, SOURCE_FILE)
 
 
 def listen() -> None:
