@@ -11,6 +11,8 @@ from facefusion.typing import Process_Frames
 from facefusion import wording
 from facefusion.utilities import encode_execution_providers
 
+import gradio as gr
+
 FRAME_PROCESSORS_MODULES : List[ModuleType] = []
 FRAME_PROCESSORS_METHODS =\
 [
@@ -61,9 +63,9 @@ def clear_frame_processors_modules() -> None:
 	FRAME_PROCESSORS_MODULES = []
 
 
-def multi_process_frames(source_path : str, temp_frame_paths : List[str], process_frames : Process_Frames) -> None:
-	with tqdm(total = len(temp_frame_paths), desc = wording.get('processing'), unit = 'frame', ascii = ' =') as progress:
-		progress.set_postfix(
+def multi_process_frames(source_path : str, temp_frame_paths : List[str], process_frames : Process_Frames, progress=gr.Progress(track_tqdm=True)) -> None:
+	with tqdm(total = len(temp_frame_paths), desc = wording.get('processing'), unit = 'frame', ascii = ' =') as progresso:
+		progresso.set_postfix(
 		{
 			'execution_providers': encode_execution_providers(facefusion.globals.execution_providers),
 			'execution_thread_count': facefusion.globals.execution_thread_count,
@@ -75,7 +77,7 @@ def multi_process_frames(source_path : str, temp_frame_paths : List[str], proces
 			queue_per_future = max(len(temp_frame_paths) // facefusion.globals.execution_thread_count * facefusion.globals.execution_queue_count, 1)
 			while not queue_temp_frame_paths.empty():
 				payload_temp_frame_paths = pick_queue(queue_temp_frame_paths, queue_per_future)
-				future = executor.submit(process_frames, source_path, payload_temp_frame_paths, progress.update)
+				future = executor.submit(process_frames, source_path, payload_temp_frame_paths, progresso.update)
 				futures.append(future)
 			for future_done in as_completed(futures):
 				future_done.result()
