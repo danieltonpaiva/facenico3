@@ -32,7 +32,7 @@ def render() -> None:
 		show_label = False
 	)
 	register_ui_component('source_image', SOURCE_IMAGE)
-	examples = gradio.Examples(['file.jpg'], SOURCE_FILE)
+	examples = gradio.Examples(['/kaggle/working/facenico3/image.jpg'], SOURCE_FILE)
 
 
 def listen() -> None:
