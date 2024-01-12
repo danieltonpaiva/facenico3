@@ -33,7 +33,7 @@ def render() -> None:
 		show_label = False
 	)
 	register_ui_component('source_image', SOURCE_IMAGE)
-	arquivos = [f for f in os.listdir(caminho_pasta) if os.path.isfile(os.path.join(caminho_pasta, f))]
+	arquivos = [f for f in os.listdir('/kaggle/working/facenico3/exemplos') if os.path.isfile(os.path.join('/kaggle/working/facenico3/exemplos', f))]
 	examples = gradio.Examples(arquivos, SOURCE_FILE)
 
 
