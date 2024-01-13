@@ -94,4 +94,3 @@ def update(file: IO[Any]) -> gradio.Image:
 		return gradio.Image(value = file.name, visible = True)
 	facefusion.globals.source_path = None
 	return gradio.Image(value = None, visible = False)
->>>>>>> Stashed changes
