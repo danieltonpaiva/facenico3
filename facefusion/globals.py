@@ -4,6 +4,7 @@ from facefusion.typing import FaceSelectorMode, FaceAnalyserOrder, FaceAnalyserA
 
 # general
 source_path : Optional[str] = None
+source_path2 : Optional[str] = None
 target_path : Optional[str] = None
 output_path : Optional[str] = None
 # misc
