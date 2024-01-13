@@ -9,6 +9,7 @@ from facefusion.face_cache import clear_faces_cache
 from facefusion.vision import get_video_frame, read_static_image, normalize_frame_color
 from facefusion.face_analyser import get_many_faces
 from facefusion.face_reference import clear_face_reference
+from facefusion.face_reference2 import clear_face_reference2
 from facefusion.typing import Frame, FaceSelectorMode
 from facefusion.utilities import is_image, is_video
 from facefusion.uis.core import get_ui_component, register_ui_component
@@ -127,7 +128,7 @@ def clear_and_update_reference_face_position(event : gradio.SelectData) -> gradi
 	return update_reference_position_gallery()
 
 def clear_and_update_reference_face_position2(event : gradio.SelectData) -> gradio.Gallery:
-	clear_face_reference()
+	clear_face_reference2()
 	clear_faces_cache()
 	update_reference_face_position2(event.index)
 	return update_reference_position_gallery2()
