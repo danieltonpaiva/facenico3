@@ -188,11 +188,4 @@ def process_preview_frame(source_face : Face, reference_face : Face, temp_frame 
 				reference_face,
 				temp_frame
 			)
-			if(source_face2 and reference_face2):
-				print('Processando face 2...')
-				temp_frame = frame_processor_module.process_frame(
-					source_face2,
-					reference_face2,
-					temp_frame
-				)
 	return temp_frame
