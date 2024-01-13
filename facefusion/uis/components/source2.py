@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 from typing import Any, IO, Optional
 import gradio
 import os
@@ -46,7 +45,7 @@ def update(file: IO[Any]) -> gradio.Image:
 		return gradio.Image(value = file.name, visible = True)
 	facefusion.globals.source_path = None
 	return gradio.Image(value = None, visible = False)
-=======
+
 from typing import Any, IO, Optional
 import gradio
 import os
