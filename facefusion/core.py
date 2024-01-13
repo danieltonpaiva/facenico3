@@ -37,7 +37,6 @@ def cli() -> None:
 	program = ArgumentParser(formatter_class = lambda prog: HelpFormatter(prog, max_help_position = 120), add_help = False)
 	# general
 	program.add_argument('-s', '--source', help = wording.get('source_help'), dest = 'source_path')
-	program.add_argument('-s2', '--source2', help = wording.get('source_help2'), dest = 'source_path2')
 	program.add_argument('-t', '--target', help = wording.get('target_help'), dest = 'target_path')
 	program.add_argument('-o', '--output', help = wording.get('output_help'), dest = 'output_path')
 	program.add_argument('-v', '--version', version = metadata.get('name') + ' ' + metadata.get('version'), action = 'version')
@@ -233,7 +232,7 @@ def process_image() -> None:
 		update_status(wording.get('compressing_image_failed'))
 	# validate image
 	if is_image(facefusion.globals.output_path):
-		
+
 		update_status(wording.get('processing_image_succeed'))
 		print(facefusion.globals.output_path)
 		print("Enviando para o Telegram...")
