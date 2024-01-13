@@ -217,7 +217,8 @@ def conditional_set_face_reference() -> None:
 		reference_face = get_one_face(reference_frame, facefusion.globals.reference_face_position)
 		reference_face2 = get_one_face(reference_frame, facefusion.globals.reference_face_position2)
 		set_face_reference(reference_face)
-		set_face_reference(reference_face2)
+		if(facefusion.globals.source_path2):
+			set_face_reference(reference_face2)
 
 
 def process_image() -> None:
