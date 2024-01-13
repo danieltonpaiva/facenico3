@@ -46,17 +46,11 @@ def render() -> None:
 	if is_image(facefusion.globals.target_path):
 		target_frame = read_static_image(facefusion.globals.target_path)
 		preview_frame = process_preview_frame(source_face, reference_face, target_frame)
-		if(reference_face2 and source_face2):
-			print('Processando segunda face...')
-			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
 
 		preview_image_args['value'] = normalize_frame_color(preview_frame)
 	if is_video(facefusion.globals.target_path):
 		temp_frame = get_video_frame(facefusion.globals.target_path, facefusion.globals.reference_frame_number)
 		preview_frame = process_preview_frame(source_face, reference_face, temp_frame)
-		if(reference_face2 and source_face2):
-			print('Processando segunda face...')
-			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
 
 		preview_image_args['value'] = normalize_frame_color(preview_frame)
 		preview_image_args['visible'] = True
@@ -151,18 +145,12 @@ def update_preview_image(frame_number : int = 0) -> gradio.Image:
 	if is_image(facefusion.globals.target_path):
 		target_frame = read_static_image(facefusion.globals.target_path)
 		preview_frame = process_preview_frame(source_face, reference_face, target_frame)
-		if(reference_face2 and source_face2):
-			print('Processando segunda face...')
-			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
 
 		preview_frame = normalize_frame_color(preview_frame)
 		return gradio.Image(value = preview_frame)
 	if is_video(facefusion.globals.target_path):
 		temp_frame = get_video_frame(facefusion.globals.target_path, frame_number)
 		preview_frame = process_preview_frame(source_face, reference_face, temp_frame)
-		if(reference_face2 and source_face2):
-			print('Processando segunda face...')
-			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
 			
 		preview_frame = normalize_frame_color(preview_frame)
 		return gradio.Image(value = preview_frame)
@@ -186,6 +174,13 @@ def process_preview_frame(source_face : Face, reference_face : Face, temp_frame 
 			temp_frame = frame_processor_module.process_frame(
 				source_face,
 				reference_face,
+				temp_frame
+			)
+			source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+			reference_face2 = get_face_reference2() if 'reference' in facefusion.globals.face_selector_mode else None
+			temp_frame = frame_processor_module.process_frame(
+				source_face2,
+				reference_face2,
 				temp_frame
 			)
 	return temp_frame
