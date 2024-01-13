@@ -129,6 +129,7 @@ def clear_and_update_reference_face_position(event : gradio.SelectData) -> gradi
 
 def clear_and_update_reference_face_position2(event : gradio.SelectData) -> gradio.Gallery:
 	clear_face_reference2()
+	clear_face_reference()
 	clear_faces_cache()
 	update_reference_face_position2(event.index)
 	return update_reference_position_gallery2()
