@@ -10,6 +10,7 @@ from facefusion.typing import Frame, Face
 from facefusion.vision import get_video_frame, count_video_frame_total, normalize_frame_color, resize_frame_dimension, read_static_image
 from facefusion.face_analyser import get_one_face, clear_face_analyser
 from facefusion.face_reference import get_face_reference, clear_face_reference
+from facefusion.face_reference2 import get_face_reference2, clear_face_reference2
 from facefusion.content_analyser import analyse_frame
 from facefusion.processors.frame.core import load_frame_processor_module
 from facefusion.utilities import is_video, is_image
@@ -39,14 +40,24 @@ def render() -> None:
 	}
 	conditional_set_face_reference()
 	source_face = get_one_face(read_static_image(facefusion.globals.source_path))
+	source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
 	reference_face = get_face_reference() if 'reference' in facefusion.globals.face_selector_mode else None
+	reference_face2 = get_face_reference2() if 'reference' in facefusion.globals.face_selector_mode else None
 	if is_image(facefusion.globals.target_path):
 		target_frame = read_static_image(facefusion.globals.target_path)
 		preview_frame = process_preview_frame(source_face, reference_face, target_frame)
+		if(reference_face2 and source_face2):
+			print('Processando segunda face...')
+			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
+
 		preview_image_args['value'] = normalize_frame_color(preview_frame)
 	if is_video(facefusion.globals.target_path):
 		temp_frame = get_video_frame(facefusion.globals.target_path, facefusion.globals.reference_frame_number)
 		preview_frame = process_preview_frame(source_face, reference_face, temp_frame)
+		if(reference_face2 and source_face2):
+			print('Processando segunda face...')
+			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
+
 		preview_image_args['value'] = normalize_frame_color(preview_frame)
 		preview_image_args['visible'] = True
 		preview_frame_slider_args['value'] = facefusion.globals.reference_frame_number
@@ -134,15 +145,25 @@ def clear_and_update_preview_image(frame_number : int = 0) -> gradio.Image:
 def update_preview_image(frame_number : int = 0) -> gradio.Image:
 	conditional_set_face_reference()
 	source_face = get_one_face(read_static_image(facefusion.globals.source_path))
+	source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
 	reference_face = get_face_reference() if 'reference' in facefusion.globals.face_selector_mode else None
+	reference_face2 = get_face_reference2() if 'reference' in facefusion.globals.face_selector_mode else None
 	if is_image(facefusion.globals.target_path):
 		target_frame = read_static_image(facefusion.globals.target_path)
 		preview_frame = process_preview_frame(source_face, reference_face, target_frame)
+		if(reference_face2 and source_face2):
+			print('Processando segunda face...')
+			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
+
 		preview_frame = normalize_frame_color(preview_frame)
 		return gradio.Image(value = preview_frame)
 	if is_video(facefusion.globals.target_path):
 		temp_frame = get_video_frame(facefusion.globals.target_path, frame_number)
 		preview_frame = process_preview_frame(source_face, reference_face, temp_frame)
+		if(reference_face2 and source_face2):
+			print('Processando segunda face...')
+			preview_frame = process_preview_frame(source_face2, reference_face2, preview_frame)
+			
 		preview_frame = normalize_frame_color(preview_frame)
 		return gradio.Image(value = preview_frame)
 	return gradio.Image(value = None)
@@ -167,11 +188,4 @@ def process_preview_frame(source_face : Face, reference_face : Face, temp_frame 
 				reference_face,
 				temp_frame
 			)
-			if(source_face2 and reference_face2):
-				print('Processando face 2...')
-				temp_frame = frame_processor_module.process_frame(
-					source_face2,
-					reference_face2,
-					temp_frame
-				)
 	return temp_frame
