@@ -132,6 +132,7 @@ def listen() -> None:
 def clear_and_update_preview_image(frame_number : int = 0) -> gradio.Image:
 	clear_face_analyser()
 	clear_face_reference()
+	clear_face_reference2()
 	clear_faces_cache()
 	return update_preview_image(frame_number)
 
@@ -176,11 +177,14 @@ def process_preview_frame(source_face : Face, reference_face : Face, temp_frame 
 				reference_face,
 				temp_frame
 			)
-			source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
-			reference_face2 = get_face_reference2() if 'reference' in facefusion.globals.face_selector_mode else None
-			temp_frame = frame_processor_module.process_frame(
-				source_face2,
-				reference_face2,
-				temp_frame
-			)
+			if(facefusion.globals.source_path2):
+				print("New face detected...")
+				source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+				reference_face2 = get_face_reference2() if 'reference' in facefusion.globals.face_selector_mode else None
+				temp_frame = frame_processor_module.process_frame(
+					source_face2,
+					reference_face2,
+					temp_frame
+				)				
+
 	return temp_frame
