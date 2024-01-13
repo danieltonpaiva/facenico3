@@ -276,6 +276,12 @@ def process_image(source_path : str, target_path : str, output_path : str) -> No
 	target_frame = read_static_image(target_path)
 	reference_face = get_one_face(target_frame, facefusion.globals.reference_face_position) if 'reference' in facefusion.globals.face_selector_mode else None
 	result_frame = process_frame(source_face, reference_face, target_frame)
+	if(facefusion.globals.reference_face_position2):
+		print('reference_face2 detected!')
+		source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+		reference_face2 = get_one_face(result_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
+		result_frame = process_frame(source_face2, reference_face2, result_frame)
+
 	write_image(output_path, result_frame)
 
 
