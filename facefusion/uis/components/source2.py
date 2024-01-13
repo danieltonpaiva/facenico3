@@ -91,5 +91,5 @@ def update(file: IO[Any]) -> gradio.Image:
 	if file and is_image(file.name):
 		facefusion.globals.source_path2 = file.name
 		return gradio.Image(value = file.name, visible = True)
-	facefusion.globals.source_path = None
+	facefusion.globals.source_path2 = None
 	return gradio.Image(value = None, visible = False)

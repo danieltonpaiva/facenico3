@@ -16,12 +16,14 @@ from facefusion.uis.typing import ComponentName
 
 FACE_SELECTOR_MODE_DROPDOWN : Optional[gradio.Dropdown] = None
 REFERENCE_FACE_POSITION_GALLERY : Optional[gradio.Gallery] = None
+REFERENCE_FACE_POSITION_GALLERY2 : Optional[gradio.Gallery] = None
 REFERENCE_FACE_DISTANCE_SLIDER : Optional[gradio.Slider] = None
 
 
 def render() -> None:
 	global FACE_SELECTOR_MODE_DROPDOWN
 	global REFERENCE_FACE_POSITION_GALLERY
+	global REFERENCE_FACE_POSITION_GALLERY2
 	global REFERENCE_FACE_DISTANCE_SLIDER
 
 	reference_face_gallery_args: Dict[str, Any] =\
@@ -44,6 +46,7 @@ def render() -> None:
 		value = facefusion.globals.face_selector_mode
 	)
 	REFERENCE_FACE_POSITION_GALLERY = gradio.Gallery(**reference_face_gallery_args)
+	REFERENCE_FACE_POSITION_GALLERY2 = gradio.Gallery(**reference_face_gallery_args)
 	REFERENCE_FACE_DISTANCE_SLIDER = gradio.Slider(
 		label = wording.get('reference_face_distance_slider_label'),
 		value = facefusion.globals.reference_face_distance,
@@ -54,12 +57,14 @@ def render() -> None:
 	)
 	register_ui_component('face_selector_mode_dropdown', FACE_SELECTOR_MODE_DROPDOWN)
 	register_ui_component('reference_face_position_gallery', REFERENCE_FACE_POSITION_GALLERY)
+	register_ui_component('reference_face_position_gallery2', REFERENCE_FACE_POSITION_GALLERY2)
 	register_ui_component('reference_face_distance_slider', REFERENCE_FACE_DISTANCE_SLIDER)
 
 
 def listen() -> None:
-	FACE_SELECTOR_MODE_DROPDOWN.select(update_face_selector_mode, inputs = FACE_SELECTOR_MODE_DROPDOWN, outputs = [ REFERENCE_FACE_POSITION_GALLERY, REFERENCE_FACE_DISTANCE_SLIDER ])
+	FACE_SELECTOR_MODE_DROPDOWN.select(update_face_selector_mode, inputs = FACE_SELECTOR_MODE_DROPDOWN, outputs = [ REFERENCE_FACE_POSITION_GALLERY, REFERENCE_FACE_POSITION_GALLERY2, REFERENCE_FACE_DISTANCE_SLIDER ])
 	REFERENCE_FACE_POSITION_GALLERY.select(clear_and_update_reference_face_position)
+	REFERENCE_FACE_POSITION_GALLERY2.select(clear_and_update_reference_face_position2)
 	REFERENCE_FACE_DISTANCE_SLIDER.change(update_reference_face_distance, inputs = REFERENCE_FACE_DISTANCE_SLIDER)
 	multi_component_names : List[ComponentName] =\
 	[
@@ -71,7 +76,9 @@ def listen() -> None:
 		if component:
 			for method in [ 'upload', 'change', 'clear' ]:
 				getattr(component, method)(update_reference_face_position)
+				getattr(component, method)(update_reference_face_position2)
 				getattr(component, method)(update_reference_position_gallery, outputs = REFERENCE_FACE_POSITION_GALLERY)
+				getattr(component, method)(update_reference_position_gallery2, outputs = REFERENCE_FACE_POSITION_GALLERY2)
 	change_one_component_names : List[ComponentName] =\
 	[
 		'face_analyser_order_dropdown',
@@ -82,6 +89,7 @@ def listen() -> None:
 		component = get_ui_component(component_name)
 		if component:
 			component.change(update_reference_position_gallery, outputs = REFERENCE_FACE_POSITION_GALLERY)
+			component.change(update_reference_position_gallery2, outputs = REFERENCE_FACE_POSITION_GALLERY2)
 	change_two_component_names : List[ComponentName] =\
 	[
 		'face_detector_model_dropdown',
@@ -92,10 +100,12 @@ def listen() -> None:
 		component = get_ui_component(component_name)
 		if component:
 			component.change(clear_and_update_reference_position_gallery, outputs = REFERENCE_FACE_POSITION_GALLERY)
+			component.change(clear_and_update_reference_position_gallery2, outputs = REFERENCE_FACE_POSITION_GALLERY2)
 	preview_frame_slider = get_ui_component('preview_frame_slider')
 	if preview_frame_slider:
 		preview_frame_slider.change(update_reference_frame_number, inputs = preview_frame_slider)
 		preview_frame_slider.release(update_reference_position_gallery, outputs = REFERENCE_FACE_POSITION_GALLERY)
+		preview_frame_slider.release(update_reference_position_gallery2, outputs = REFERENCE_FACE_POSITION_GALLERY2)
 
 
 def update_face_selector_mode(face_selector_mode : FaceSelectorMode) -> Tuple[gradio.Gallery, gradio.Slider]:
@@ -116,10 +126,18 @@ def clear_and_update_reference_face_position(event : gradio.SelectData) -> gradi
 	update_reference_face_position(event.index)
 	return update_reference_position_gallery()
 
+def clear_and_update_reference_face_position2(event : gradio.SelectData) -> gradio.Gallery:
+	clear_face_reference()
+	clear_faces_cache()
+	update_reference_face_position2(event.index)
+	return update_reference_position_gallery2()
+
 
 def update_reference_face_position(reference_face_position : int = 0) -> None:
 	facefusion.globals.reference_face_position = reference_face_position
 
+def update_reference_face_position2(reference_face_position2 : int = 0) -> None:
+	facefusion.globals.reference_face_position2 = reference_face_position2
 
 def update_reference_face_distance(reference_face_distance : float) -> None:
 	facefusion.globals.reference_face_distance = reference_face_distance
@@ -134,8 +152,24 @@ def clear_and_update_reference_position_gallery() -> gradio.Gallery:
 	clear_faces_cache()
 	return update_reference_position_gallery()
 
+def clear_and_update_reference_position_gallery2() -> gradio.Gallery:
+	clear_face_reference()
+	clear_faces_cache()
+	return update_reference_position_gallery2()
 
 def update_reference_position_gallery() -> gradio.Gallery:
+	gallery_frames = []
+	if is_image(facefusion.globals.target_path):
+		reference_frame = read_static_image(facefusion.globals.target_path)
+		gallery_frames = extract_gallery_frames(reference_frame)
+	if is_video(facefusion.globals.target_path):
+		reference_frame = get_video_frame(facefusion.globals.target_path, facefusion.globals.reference_frame_number)
+		gallery_frames = extract_gallery_frames(reference_frame)
+	if gallery_frames:
+		return gradio.Gallery(value = gallery_frames)
+	return gradio.Gallery(value = None)
+
+def update_reference_position_gallery2() -> gradio.Gallery:
 	gallery_frames = []
 	if is_image(facefusion.globals.target_path):
 		reference_frame = read_static_image(facefusion.globals.target_path)

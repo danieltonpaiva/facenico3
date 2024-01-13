@@ -26,6 +26,7 @@ face_recognizer_model : Optional[FaceRecognizerModel] = None
 # face selector
 face_selector_mode : Optional[FaceSelectorMode] = None
 reference_face_position : Optional[int] = None
+reference_face_position2 : Optional[int] = None
 reference_face_distance : Optional[float] = None
 reference_frame_number : Optional[int] = None
 # face mask
