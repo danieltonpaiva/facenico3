@@ -135,13 +135,11 @@ def clear_and_update_reference_face_position2(event : gradio.SelectData) -> grad
 
 
 def update_reference_face_position(reference_face_position : int = 0) -> None:
-	print('Alterou face reference position 1')
-	print(reference_face_position)
+	print('Alterou face reference position para: ' + reference_face_position)
 	facefusion.globals.reference_face_position = reference_face_position
 
 def update_reference_face_position2(reference_face_position2 : int = 0) -> None:
-	print('Alterou face reference position 2')
-	print(reference_face_position2)
+	print('Alterou face reference position2 para: ' + reference_face_position2)
 	facefusion.globals.reference_face_position2 = reference_face_position2
 
 def update_reference_face_distance(reference_face_distance : float) -> None:
@@ -158,7 +156,7 @@ def clear_and_update_reference_position_gallery() -> gradio.Gallery:
 	return update_reference_position_gallery()
 
 def clear_and_update_reference_position_gallery2() -> gradio.Gallery:
-	clear_face_reference()
+	clear_face_reference2()
 	clear_faces_cache()
 	return update_reference_position_gallery2()
 
