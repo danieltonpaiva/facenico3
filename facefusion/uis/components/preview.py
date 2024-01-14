@@ -186,6 +186,7 @@ def process_preview_frame(source_face : Face, reference_face : Face, temp_frame 
 					reference_face2,
 					temp_frame
 				)
+				print(temp_frame2)
 				return temp_frame2			
 
 	return temp_frame
