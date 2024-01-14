@@ -139,6 +139,8 @@ def clear_and_update_preview_image(frame_number : int = 0) -> gradio.Image:
 
 def update_preview_image(frame_number : int = 0) -> gradio.Image:
 	conditional_set_face_reference()
+	print("FACE1: " + str(facefusion.globals.reference_face_position))
+	print("FACE2: " + str(facefusion.globals.reference_face_position2))
 	source_face = get_one_face(read_static_image(facefusion.globals.source_path))
 	source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
 	reference_face = get_face_reference() if 'reference' in facefusion.globals.face_selector_mode else None
