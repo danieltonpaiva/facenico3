@@ -177,7 +177,7 @@ def process_preview_frame(source_face : Face, reference_face : Face, temp_frame 
 				reference_face,
 				temp_frame
 			)
-			if(facefusion.globals.source_path2):
+			if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
 				print("New face detected")
 				source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
 				reference_face2 = get_face_reference2() if 'reference' in facefusion.globals.face_selector_mode else None
