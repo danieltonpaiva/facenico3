@@ -249,6 +249,13 @@ def process_frame(source_face : Face, reference_face : Face, temp_frame : Frame)
 		if similar_faces:
 			for similar_face in similar_faces:
 				temp_frame = swap_face(source_face, similar_face, temp_frame)
+		if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
+			source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+			reference_face2 = get_one_face(result_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
+			similar_faces2 = find_similar_faces(temp_frame, reference_face2, facefusion.globals.reference_face_distance)
+			if similar_faces2:
+				for similar_face in similar_faces2:
+					temp_frame = swap_face(source_face2, similar_face2, temp_frame)
 	if 'one' in facefusion.globals.face_selector_mode:
 		target_face = get_one_face(temp_frame)
 		if target_face:
@@ -267,10 +274,7 @@ def process_frames(source_path : str, temp_frame_paths : List[str], update_progr
 	for temp_frame_path in temp_frame_paths:
 		temp_frame = read_image(temp_frame_path)
 		result_frame = process_frame(source_face, reference_face, temp_frame)
-		if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
-			source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
-			reference_face2 = get_one_face(result_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
-			result_frame = process_frame(source_face2, reference_face2, result_frame)
+
 
 		write_image(temp_frame_path, result_frame)
 		update_progress()
@@ -281,11 +285,7 @@ def process_image(source_path : str, target_path : str, output_path : str) -> No
 	target_frame = read_static_image(target_path)
 	reference_face = get_one_face(target_frame, facefusion.globals.reference_face_position) if 'reference' in facefusion.globals.face_selector_mode else None
 	result_frame = process_frame(source_face, reference_face, target_frame)
-	if(facefusion.globals.reference_face_position2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
-		print('reference_face2 detected!')
-		source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
-		reference_face2 = get_one_face(result_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
-		result_frame = process_frame(source_face2, reference_face2, result_frame)
+
 
 	write_image(output_path, result_frame)
 
