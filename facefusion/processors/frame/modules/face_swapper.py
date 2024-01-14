@@ -161,10 +161,10 @@ def pre_process(mode : ProcessMode) -> bool:
 	elif not is_file(model_path):
 		update_status(wording.get('model_file_not_present') + wording.get('exclamation_mark'), NAME)
 		return False
-	if not is_image(facefusion.globals.source_path):
+	if not is_image(facefusion.globals.source_path) or not is_image(facefusion.globals.source_path2):
 		update_status(wording.get('select_image_source') + wording.get('exclamation_mark'), NAME)
 		return False
-	elif not get_one_face(read_static_image(facefusion.globals.source_path)):
+	elif not get_one_face(read_static_image(facefusion.globals.source_path)) or not get_one_face(read_static_image(facefusion.globals.source_path2)):
 		update_status(wording.get('no_source_face_detected') + wording.get('exclamation_mark'), NAME)
 		return False
 	if mode in [ 'output', 'preview' ] and not is_image(facefusion.globals.target_path) and not is_video(facefusion.globals.target_path):
