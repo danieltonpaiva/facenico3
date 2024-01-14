@@ -245,18 +245,35 @@ def normalize_crop_frame(crop_frame : Frame) -> Frame:
 
 def process_frame(source_face : Face, reference_face : Face, temp_frame : Frame) -> Frame:
 	if 'reference' in facefusion.globals.face_selector_mode:
-		similar_faces = find_similar_faces(temp_frame, reference_face, facefusion.globals.reference_face_distance)
-		if similar_faces:
-			for similar_face in similar_faces:
-				temp_frame = swap_face(source_face, similar_face, temp_frame)
-		if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
-			source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
-			reference_face2 = get_one_face(temp_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
-			similar_faces2 = find_similar_faces(temp_frame, reference_face2, facefusion.globals.reference_face_distance)
-			if similar_faces2:
-				for similar_face2 in similar_faces2:
-					temp_frame = swap_face(source_face2, similar_face2, temp_frame)
-					print('Changed face 2')
+		many_faces = get_many_faces(temp_frame)
+		if many_faces:
+			for target_face in many_faces:
+				similar_faces = find_similar_faces(temp_frame, reference_face, facefusion.globals.reference_face_distance)
+				if similar_faces:
+					for similar_face in similar_faces:
+						temp_frame = swap_face(source_face, similar_face, temp_frame)
+
+					if(len(many_faces) > 1):
+						if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
+							source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+							reference_face2 = get_one_face(temp_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
+							similar_faces2 = find_similar_faces(temp_frame, reference_face2, facefusion.globals.reference_face_distance)
+							if similar_faces2:
+								for similar_face2 in similar_faces2:
+									temp_frame = swap_face(source_face2, similar_face2, temp_frame)
+									print('Changed face 2.0')
+				else:
+					if(len(many_faces) == 1):
+						if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
+							source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+							reference_face2 = get_one_face(temp_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
+							similar_faces2 = find_similar_faces(temp_frame, reference_face2, facefusion.globals.reference_face_distance)
+							if similar_faces2:
+								for similar_face2 in similar_faces2:
+									temp_frame = swap_face(source_face2, similar_face2, temp_frame)
+									print('Changed face 2.1')
+
+
 	if 'one' in facefusion.globals.face_selector_mode:
 		target_face = get_one_face(temp_frame)
 		if target_face:
