@@ -261,7 +261,6 @@ def process_frame(source_face : Face, reference_face : Face, temp_frame : Frame)
 							if similar_faces2:
 								for similar_face2 in similar_faces2:
 									temp_frame = swap_face(source_face2, similar_face2, temp_frame)
-									print('Changed face 2.0')
 				else:
 					if(len(many_faces) == 1):
 						if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
@@ -271,7 +270,6 @@ def process_frame(source_face : Face, reference_face : Face, temp_frame : Frame)
 							if similar_faces2:
 								for similar_face2 in similar_faces2:
 									temp_frame = swap_face(source_face2, similar_face2, temp_frame)
-									print('Changed face 2.1')
 
 
 	if 'one' in facefusion.globals.face_selector_mode:
