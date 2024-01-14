@@ -256,6 +256,7 @@ def process_frame(source_face : Face, reference_face : Face, temp_frame : Frame)
 			if similar_faces2:
 				for similar_face2 in similar_faces2:
 					temp_frame = swap_face(source_face2, similar_face2, temp_frame)
+					print('Changed face 2')
 	if 'one' in facefusion.globals.face_selector_mode:
 		target_face = get_one_face(temp_frame)
 		if target_face:
