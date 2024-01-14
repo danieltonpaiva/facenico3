@@ -267,6 +267,11 @@ def process_frames(source_path : str, temp_frame_paths : List[str], update_progr
 	for temp_frame_path in temp_frame_paths:
 		temp_frame = read_image(temp_frame_path)
 		result_frame = process_frame(source_face, reference_face, temp_frame)
+		if(facefusion.globals.source_path2 is not None and facefusion.globals.reference_face_position2 != facefusion.globals.reference_face_position):
+			source_face2 = get_one_face(read_static_image(facefusion.globals.source_path2))
+			reference_face2 = get_one_face(result_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
+			result_frame = process_frame(source_face2, reference_face2, result_frame)
+			
 		write_image(temp_frame_path, result_frame)
 		update_progress()
 
