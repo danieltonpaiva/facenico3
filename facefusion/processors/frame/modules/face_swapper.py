@@ -254,7 +254,7 @@ def process_frame(source_face : Face, reference_face : Face, temp_frame : Frame)
 			reference_face2 = get_one_face(temp_frame, facefusion.globals.reference_face_position2) if 'reference' in facefusion.globals.face_selector_mode else None
 			similar_faces2 = find_similar_faces(temp_frame, reference_face2, facefusion.globals.reference_face_distance)
 			if similar_faces2:
-				for similar_face in similar_faces2:
+				for similar_face2 in similar_faces2:
 					temp_frame = swap_face(source_face2, similar_face2, temp_frame)
 	if 'one' in facefusion.globals.face_selector_mode:
 		target_face = get_one_face(temp_frame)
