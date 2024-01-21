@@ -4,7 +4,7 @@ from cv2.typing import Size
 import cv2
 import numpy
 
-from facefusion.typing import Bbox, Kps, Frame, Mask, Matrix, Template
+from facefusion.typing import Bbox, Kps, Frame, Mask, Matrix, Template, Padding
 
 TEMPLATES : Dict[Template, numpy.ndarray[Any, Any]] =\
 {
