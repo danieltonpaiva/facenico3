@@ -193,6 +193,7 @@ def swap_face(source_face : Face, target_face : Face, temp_frame : Frame) -> Fra
 	crop_frame, affine_matrix = warp_face(temp_frame, target_face.kps, model_template, model_size)
 	crop_frame = prepare_crop_frame(crop_frame)
 	frame_processor_inputs = {}
+	crop_mask_list = []
 	crop_mask_list.append(create_static_box_mask(crop_frame.shape[:2][::-1], facefusion.globals.face_mask_blur, facefusion.globals.face_mask_padding))
 	for frame_processor_input in frame_processor.get_inputs():
 		if frame_processor_input.name == 'source':
