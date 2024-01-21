@@ -192,11 +192,7 @@ def swap_face(source_face : Face, target_face : Face, temp_frame : Frame) -> Fra
 	crop_frame, affine_matrix = warp_face(temp_frame, target_face.kps, model_template, model_size)
 	crop_frame = prepare_crop_frame(crop_frame)
 	frame_processor_inputs = {}
-<<<<<<< HEAD
-	crop_mask_list = []
-	crop_mask_list.append(create_static_box_mask(crop_frame.shape[:2][::-1], facefusion.globals.face_mask_blur, facefusion.globals.face_mask_padding))
-=======
->>>>>>> parent of 724840b (asrfsdfsd)
+
 	for frame_processor_input in frame_processor.get_inputs():
 		if frame_processor_input.name == 'source':
 			if model_type == 'blendface':
@@ -207,8 +203,7 @@ def swap_face(source_face : Face, target_face : Face, temp_frame : Frame) -> Fra
 			frame_processor_inputs[frame_processor_input.name] = crop_frame
 	crop_frame = frame_processor.run(None, frame_processor_inputs)[0][0]
 	crop_frame = normalize_crop_frame(crop_frame)
-	crop_mask = numpy.minimum.reduce(crop_mask_list).clip(0, 1)
-	temp_frame = paste_back(temp_frame, crop_frame, crop_mask, affine_matrix)
+	temp_frame = paste_back(temp_frame, crop_frame, affine_matrix, facefusion.globals.face_mask_blur, facefusion.globals.face_mask_padding)
 	return temp_frame
 
 
