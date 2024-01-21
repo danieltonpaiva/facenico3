@@ -5,6 +5,8 @@ from facefusion.typing import LogLevel, FaceSelectorMode, FaceAnalyserOrder, Fac
 # general
 source_paths : Optional[List[str]] = None
 target_path : Optional[str] = None
+source_path : Optional[str] = None
+source_path2 : Optional[str] = None
 output_path : Optional[str] = None
 # misc
 skip_download : Optional[bool] = None
