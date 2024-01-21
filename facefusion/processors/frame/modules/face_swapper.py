@@ -18,7 +18,6 @@ from facefusion.utilities import conditional_download, resolve_relative_path, is
 from facefusion.vision import read_image, read_static_image, write_image
 from facefusion.processors.frame import globals as frame_processors_globals
 from facefusion.processors.frame import choices as frame_processors_choices
-from facefusion.face_masker import create_static_box_mask, create_occlusion_mask, create_region_mask, clear_face_occluder, clear_face_parser
 
 FRAME_PROCESSOR = None
 MODEL_MATRIX = None
@@ -193,8 +192,11 @@ def swap_face(source_face : Face, target_face : Face, temp_frame : Frame) -> Fra
 	crop_frame, affine_matrix = warp_face(temp_frame, target_face.kps, model_template, model_size)
 	crop_frame = prepare_crop_frame(crop_frame)
 	frame_processor_inputs = {}
+<<<<<<< HEAD
 	crop_mask_list = []
 	crop_mask_list.append(create_static_box_mask(crop_frame.shape[:2][::-1], facefusion.globals.face_mask_blur, facefusion.globals.face_mask_padding))
+=======
+>>>>>>> parent of 724840b (asrfsdfsd)
 	for frame_processor_input in frame_processor.get_inputs():
 		if frame_processor_input.name == 'source':
 			if model_type == 'blendface':
