@@ -36,6 +36,7 @@ import ffmpeg
 def merge_video(target_path: str, fps: float) -> bool:
     temp_output_video_path = get_temp_output_video_path(target_path)
     temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
+    print(temp_frames_pattern)
 
     ffmpeg.input(temp_frames_pattern, r=fps, hwaccel='cuda').output(
         temp_output_video_path,
