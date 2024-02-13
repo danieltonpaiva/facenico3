@@ -36,6 +36,7 @@ import ffmpeg
 def merge_video(target_path: str, fps: float) -> bool:
     temp_output_video_path = get_temp_output_video_path(target_path)
     temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
+    renomear_frames(os.listdir(get_temp_directory_path(target_path)))
     print(os.listdir(get_temp_directory_path(target_path)))
 
     ffmpeg.input(temp_frames_pattern, r=fps, hwaccel='cuda').output(
@@ -65,7 +66,24 @@ def get_crf_value(quality):
 # Assuming the run_ffmpeg function is still needed, you can adapt it to
 # use subprocess or remove it, depending on your requirements.
 
-
+def renomear_frames(pasta_frames):
+    # Lista dos arquivos na pasta de frames
+    arquivos = os.listdir(pasta_frames)
+    
+    # Filtra apenas os arquivos de imagem (JPEG)
+    arquivos_imagem = [arquivo for arquivo in arquivos if arquivo.lower().endswith(('.jpg', '.jpeg'))]
+    
+    # Ordena os arquivos por nome
+    arquivos_imagem.sort()
+    
+    # Renomeia os arquivos na ordem numérica sequencial
+    for idx, arquivo in enumerate(arquivos_imagem, start=1):
+        novo_nome = f'{idx:04d}.jpg'  # Define o novo nome do arquivo
+        caminho_original = os.path.join(pasta_frames, arquivo)
+        caminho_novo = os.path.join(pasta_frames, novo_nome)
+        os.rename(caminho_original, caminho_novo)  # Renomeia o arquivo
+    
+    print("Frames renomeados com sucesso.")
 
 
 
