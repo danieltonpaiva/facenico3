@@ -70,11 +70,12 @@ def run_ffmpeg(input_command : List[str], desc="Processando video", tamanho=0):
 
 
 def merge_video(target_path: str, fps: float) -> bool:
-	renomear_frames(get_temp_directory_path(target_path))
+	
 	print(len(os.listdir(get_temp_directory_path(target_path))))
 	print(get_temp_directory_path(target_path))
 	temp_output_video_path = get_temp_output_video_path(target_path)
 	temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
+	renomear_frames(get_temp_directory_path(target_path))
 
 	commands = [ '-hwaccel', 'auto', '-r', str(fps), '-i', temp_frames_pattern, '-c:v', facefusion.globals.output_video_encoder ]
 	if facefusion.globals.output_video_encoder in [ 'libx264', 'libx265' ]:
