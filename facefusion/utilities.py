@@ -154,7 +154,7 @@ def renomear_frames(pasta_frames):
 
 
 
-def run_ffmpeg(args : List[str]) -> bool:
+def run_ffmpeg3(args : List[str]) -> bool:
 	commands = ['ffmpeg', '-hide_banner', '-loglevel', 'error']
 	commands.extend(args)
 	
