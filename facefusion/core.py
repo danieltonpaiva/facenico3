@@ -116,14 +116,14 @@ def apply_args(program : ArgumentParser) -> None:
 	facefusion.globals.face_analyser_gender = args.face_analyser_gender
 	facefusion.globals.face_detector_model = args.face_detector_model
 	facefusion.globals.face_detector_size = args.face_detector_size
-	facefusion.globals.face_detector_score = args.face_detector_score
+	facefusion.globals.face_detector_score = 0.3
 	# face selector
 	facefusion.globals.face_selector_mode = args.face_selector_mode
 	facefusion.globals.reference_face_position = args.reference_face_position
 	facefusion.globals.reference_face_distance = 0.75
 	facefusion.globals.reference_frame_number = args.reference_frame_number
 	# face mask
-	facefusion.globals.face_mask_blur = args.face_mask_blur
+	facefusion.globals.face_mask_blur = 0.05
 	facefusion.globals.face_mask_padding = normalize_padding(args.face_mask_padding)
 	# frame extraction
 	facefusion.globals.trim_frame_start = args.trim_frame_start
@@ -135,7 +135,7 @@ def apply_args(program : ArgumentParser) -> None:
 	facefusion.globals.output_image_quality = args.output_image_quality
 	facefusion.globals.output_video_encoder = args.output_video_encoder
 	facefusion.globals.output_video_quality = 50
-	facefusion.globals.keep_fps = args.keep_fps
+	facefusion.globals.keep_fps = True
 	facefusion.globals.skip_audio = args.skip_audio
 	# frame processors
 	available_frame_processors = list_module_names('facefusion/processors/frame/modules')
