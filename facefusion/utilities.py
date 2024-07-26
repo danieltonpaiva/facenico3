@@ -33,22 +33,63 @@ if platform.system().lower() == 'darwin':
 
 import ffmpeg
 
+
+def run_ffmpeg(input_command : List[str], desc="Processando video", tamanho=0):
+    frames = tamanho
+    commands = [ 'ffmpeg']
+    commands.extend(input_command)
+    # Cria um objeto tqdm para exibir a barra de progresso
+    with tqdm(total=frames, desc=desc, position=0, leave=True) as progress:
+        # Abre um processo para executar o comando ffmpeg
+        process = subprocess.Popen(
+            commands,
+            stderr=subprocess.PIPE,  # Captura a saída de erro do ffmpeg
+            universal_newlines=True,  # Usa strings para texto (em vez de bytes)
+            bufsize=1,  # Buffer de linha a linha
+        )
+
+        # Lê a saída de erro do processo linha por linha
+        for line in process.stderr:
+            # Aqui você precisaria analisar a saída do ffmpeg para extrair informações de progresso
+            # e atualizar a barra de progresso. Isso depende do formato específico de saída do ffmpeg.
+
+            # Exemplo: Verifica se a linha contém informações de progresso
+            if "frame=" in line and "fps=" in line:
+                # Extraia o número do frame atual e atualize a barra de progresso
+                current_frame = int(line.split("frame=")[1].split()[0])
+                progress.update(current_frame - progress.n)
+
+        # Aguarde o término do processo
+        process.wait()
+
+    # Verifica o código de saída do processo
+    if process.returncode != 0:
+        print(f"Erro ao executar o comando: {input_command}")
+
+    return True
+
+
 def merge_video(target_path: str, fps: float) -> bool:
-    temp_output_video_path = get_temp_output_video_path(target_path)
-    temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
-    renomear_frames(get_temp_directory_path(target_path))
-    print(os.listdir(get_temp_directory_path(target_path)))
+	renomear_frames(get_temp_directory_path(target_path))
+	print(len(os.listdir(get_temp_directory_path(target_path))))
+	print(get_temp_directory_path(target_path))
+	temp_output_video_path = get_temp_output_video_path(target_path)
+	temp_frames_pattern = get_temp_frames_pattern(target_path, '%04d')
 
-    ffmpeg.input(temp_frames_pattern, r=fps, hwaccel='cuda').output(
-        temp_output_video_path,
-        vcodec=facefusion.globals.output_video_encoder,
-        crf=get_crf_value(facefusion.globals.output_video_quality),
-        pix_fmt='yuv420p',
-        colorspace='bt709',
-        y='-y'
-    ).run()
+	commands = [ '-hwaccel', 'auto', '-r', str(fps), '-i', temp_frames_pattern, '-c:v', facefusion.globals.output_video_encoder ]
+	if facefusion.globals.output_video_encoder in [ 'libx264', 'libx265' ]:
+		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
+		commands.extend([ '-crf', str(output_video_compression) ])
+	if facefusion.globals.output_video_encoder in [ 'libvpx-vp9' ]:
+		output_video_compression = round(63 - (facefusion.globals.output_video_quality * 0.63))
+		commands.extend([ '-crf', str(output_video_compression) ])
+	if facefusion.globals.output_video_encoder in [ 'h264_nvenc', 'hevc_nvenc' ]:
+		output_video_compression = round(51 - (facefusion.globals.output_video_quality * 0.51))
+		commands.extend([ '-cq', str(output_video_compression) ])
+	commands.extend([ '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-y', temp_output_video_path ])
+	return run_ffmpeg(commands, "Criando o vídeo", len(os.listdir(get_temp_directory_path(target_path))))
 
-    return True  # Replace with appropriate logic for success/failure
+    #return True  # Replace with appropriate logic for success/failure
 
 def get_crf_value(quality):
     if facefusion.globals.output_video_encoder in ['libx264', 'libx265']:
